@@ -1,7 +1,7 @@
 # Trello Clone - Project Implementation Summary
 
 ## Overview
-The project is a full-stack Trello clone Kanban application. We have successfully implemented a robust backend using Node.js/Express and Prisma (with SQLite), alongside a modern Next.js frontend featuring drag-and-drop functionality and a glassmorphic UI.
+The project is a full-stack Trello clone Kanban application. We have successfully implemented a robust backend using Node.js/Express and Prisma (with PostgreSQL), alongside a modern Next.js frontend featuring drag-and-drop functionality and a glassmorphic UI.
 
 ---
 
@@ -9,7 +9,7 @@ The project is a full-stack Trello clone Kanban application. We have successfull
 The backend is a RESTful API built with **Express** and **Prisma ORM**.
 
 ### Database Schema
-Leveraging **SQLite** for development (as configured in `schema.prisma`), the database consists of the following core models:
+Leveraging **PostgreSQL** for persistence (as configured in `schema.prisma`), the database consists of the following core models:
 - **User**: Stores user details (`id`, `email`, `name`).
 - **Board**: A container for lists (`id`, `title`).
 - **List**: Represents columns in the board, with ordering (`id`, `title`, `order`, `boardId`).

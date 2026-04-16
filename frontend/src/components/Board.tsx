@@ -21,6 +21,7 @@ export default function Board({ initialData }: { initialData: any }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeType, setActiveType] = useState<'list' | 'card' | null>(null);
   const [activeCardData, setActiveCardData] = useState<any>(null);
+  const [activeCardOriginalListId, setActiveCardOriginalListId] = useState<string | null>(null);
   const [selectedCard, setSelectedCard] = useState<any>(null);
   const [isAddingList, setIsAddingList] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
@@ -101,6 +102,7 @@ export default function Board({ initialData }: { initialData: any }) {
     const cardList = findListByCardId(id as string);
     if (cardList) {
       setActiveType('card'); setActiveId(id as string);
+      setActiveCardOriginalListId(cardList.id);
       setActiveCardData(cardList.cards.find((c: any) => c.id === id));
     }
   };
@@ -130,7 +132,8 @@ export default function Board({ initialData }: { initialData: any }) {
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
-    setActiveId(null); setActiveType(null); setActiveCardData(null);
+    const originalListId = activeCardOriginalListId;
+    setActiveId(null); setActiveType(null); setActiveCardData(null); setActiveCardOriginalListId(null);
     const { active, over } = event;
     if (!over) return;
     if (activeType === 'list' && active.id !== over.id) {
@@ -142,21 +145,55 @@ export default function Board({ initialData }: { initialData: any }) {
         return reordered.map((l, idx) => ({ ...l, order: idx }));
       });
     } else if (activeType === 'card') {
-      const activeList = findListByCardId(active.id as string);
-      const overList = lists.find(l => l.id === over.id) || findListByCardId(over.id as string);
-      if (activeList && overList && activeList.id === overList.id && active.id !== over.id) {
-        setLists(prev => {
-          const li = prev.findIndex(l => l.id === activeList.id);
+      if (active.id === over.id) return;
+
+      const activeId = active.id as string;
+      const overId = over.id as string;
+
+      setLists(prev => {
+        const destinationList = prev.find(l => l.cards.some((c: any) => c.id === activeId));
+        if (!destinationList) return prev;
+
+        // `over` can be either a list drop target or another card.
+        const overList =
+          prev.find(l => l.id === overId) ||
+          prev.find(l => l.cards.some((c: any) => c.id === overId)) ||
+          null;
+        if (!overList) return prev;
+
+        // Case 1: reordering within the same list (ONLY when `over.id` is a card id)
+        const isOverCardInDestination = destinationList.cards.some((c: any) => c.id === overId);
+        if (destinationList.id === overList.id && isOverCardInDestination) {
+          const li = prev.findIndex(l => l.id === destinationList.id);
           const list = prev[li];
-          const oi = list.cards.findIndex((c: any) => c.id === active.id);
-          const ni = list.cards.findIndex((c: any) => c.id === over.id);
+          const oi = list.cards.findIndex((c: any) => c.id === activeId);
+          const ni = list.cards.findIndex((c: any) => c.id === overId);
+          if (oi === -1 || ni === -1 || oi === ni) return prev;
+
           const newCards = arrayMove(list.cards, oi, ni);
           newCards.forEach((c: any, idx: number) => api.put(`/cards/${c.id}`, { order: idx, listId: list.id }));
+
           const newLists = [...prev];
           newLists[li] = { ...list, cards: newCards };
           return newLists;
+        }
+
+        // Case 2: moving cards across lists
+        const sourceList = originalListId
+          ? prev.find(l => l.id === originalListId) || destinationList
+          : destinationList;
+
+        // Persist updated ordering for both affected lists
+        sourceList.cards.forEach((c: any, idx: number) => {
+          api.put(`/cards/${c.id}`, { order: idx, listId: sourceList.id });
         });
-      }
+        destinationList.cards.forEach((c: any, idx: number) => {
+          api.put(`/cards/${c.id}`, { order: idx, listId: destinationList.id });
+        });
+
+        // DragOver already updated UI state; no additional local mutation needed here.
+        return prev;
+      });
     }
   };
 

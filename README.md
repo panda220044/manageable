@@ -1,57 +1,182 @@
-# Trello Clone - Full Stack Project Management App
+# Manageable — Trello-style Kanban Board
 
-A beautiful, functional Trello clone built with Next.js (App Router), Node.js/Express, and PostgreSQL (via Prisma).
+A full-stack Kanban project management application inspired by Trello, built from scratch with Next.js and Node.js/Express.
 
-## Features
-- **Board Management**: Minimal UI for viewing workspaces.
-- **Kanban Lists**: Create, rename, delete and reorder lists horizontally.
-- **Drag & Drop Cards**: Move cards vertically in a list and horizontally across lists using `@dnd-kit`.
-- **Card Details**: Add rich descriptions, interact with checklists, manage task members.
-- **Glassmorphic UI**: High-end modern UI powered by Tailwind CSS.
+🔗 **Live Demo:** *(deploy URL here)*
+📦 **Repository:** https://github.com/panda220044/manageable
 
 ---
 
-## 🚀 Quick Setup Guide
+## ✨ Features
 
-Because you mentioned you are not a software engineer, I have designed this set of instructions to be as copy-paste friendly as possible! You will run this application in two pieces: the Backend API and the Frontend Interface.
+| Feature | Status |
+|---|---|
+| Kanban board with lists and cards | ✅ |
+| Drag & drop to reorder lists | ✅ |
+| Drag & drop to move/reorder cards | ✅ |
+| Create, edit, delete lists | ✅ |
+| Create, edit, delete cards | ✅ |
+| Card labels (coloured tags) | ✅ |
+| Card due dates | ✅ |
+| Card checklists with progress bar | ✅ |
+| Assign members to cards | ✅ |
+| Card comments & activity log | ✅ |
+| Search cards by title | ✅ |
+| Filter by label / member / due date | ✅ |
+| Board background customisation (8 themes) | ✅ |
+| Multiple boards support | ✅ |
+| No login required — default user auto-loaded | ✅ |
+| Sample board with seed data pre-loaded | ✅ |
 
-### Step 1: Getting a Database
-This app requires **PostgreSQL**. If you don't have it installed locally, the easiest way is to get a free cloud database (takes 2 minutes).
-1. Go to [Neon.tech](https://neon.tech/) and create a free account.
-2. Follow their portal to create a new "Project" / Database.
-3. Once created, copy the **Connection String** they give you. (It looks something like `postgresql://user:pass@ep-cool-db.us-east-1.aws.neon.tech/neondb?sslmode=require`).
+---
 
-Open the file `backend/.env` in your editor, and replace the `DATABASE_URL` with your new connection string.
-*(If you happen to use Docker, you can simply open a terminal in the root folder and run `docker-compose up -d` instead of Neon!)*
+## 🛠 Tech Stack
 
-### Step 2: Set up the Backend
-Open up a terminal (Command Prompt or PowerShell) and run the following commands:
+| Layer | Technology |
+|---|---|
+| **Frontend** | Next.js 14 (App Router), TypeScript, Tailwind CSS |
+| **Drag & Drop** | @dnd-kit/core, @dnd-kit/sortable |
+| **Icons** | lucide-react |
+| **Backend** | Node.js, Express 5, TypeScript |
+| **ORM** | Prisma ORM |
+| **Database** | PostgreSQL (recommended for deployment) |
+| **Auth** | JWT (auto-login for default user) |
+
+---
+
+## 🗄 Database Schema
+
+```
+User          -- team members assignable to cards
+Board         -- top-level workspace with background theme
+List          -- columns inside a board (ordered)
+Card          -- task items inside a list (ordered)
+Label         -- coloured tag attached to a card
+ChecklistItem -- sub-task inside a card with completion state
+CardMember    -- join table: card ↔ user assignment
+Comment       -- text comment with author name + timestamp on a card
+```
+
+All relationships use cascading deletes — removing a board removes all its lists, cards, labels, etc.
+
+---
+
+## 🚀 Setup Instructions
+
+### Prerequisites
+- Node.js 18+
+- npm
+
+### 1. Clone the repo
+```bash
+git clone https://github.com/panda220044/manageable.git
+cd manageable
+```
+
+### 2. Backend setup
 ```bash
 cd backend
-npx prisma db push
-npx ts-node prisma/seed.ts
-npm run dev
+cp .env.example .env        # or create .env manually (see below)
+npm install
+npm run db:push             # create schema in your DB
+npm run seed                # seed sample board + members
+npm run dev                 # starts on http://localhost:5000
 ```
-*Note: `db push` will magically set up all your database tables, `seed.ts` populates a fake Trello board with some tasks, and `npm run dev` starts the API that powers the game!*
-**Keep this terminal open!**
 
-### Step 3: Set up the Frontend
-Open up a **second, brand new terminal** (leaving the old one running) and run:
+**`backend/.env`**
+```
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/manageable?schema=public"
+PORT=5000
+JWT_SECRET=your_jwt_secret_here
+```
+
+### 3. Frontend setup
 ```bash
 cd frontend
-npm run dev
+cp .env.local.example .env.local  # or create manually
+npm install
+npm run dev                        # starts on http://localhost:3000
 ```
-This boots up the User Interface!
 
-### Step 4: Use the App
-Open your web browser and navigate to:
-**👉 http://localhost:3000**
+**`frontend/.env.local`**
+```
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+```
 
-You will see your newly seeded default board waiting for you! Click on the board, drag some cards around, click a card to open its details, and modify your tasks!
+### 4. Open the app
+Visit **http://localhost:3000** — you will be automatically logged in as the default user and land directly on the dashboard with the sample board ready.
 
 ---
 
-## Deployment Recommendations
-- **Frontend**: [Vercel](https://vercel.com). Simply drag and drop your `frontend` folder or connect via GitHub. Add `NEXT_PUBLIC_API_URL` to point to your live backend.
-- **Backend**: [Render](https://render.com) or [Railway](https://railway.app). Connect to GitHub, set Root Directory to `backend`, Build Command to `npm install && npx prisma db push && tsc`, and Start Command to `npm start`. Add `DATABASE_URL` in their environment variables settings.
-- **Database**: The Neon or Supabase URI you used locally can remain your production database, or you can provision a new one specifically for production!
+## 🌱 Seed Data
+
+Running `npm run seed` creates:
+- **5 team members:** You, Alice Johnson, Bob Smith, Carol White, Dave Brown
+- **1 sample board:** "🚀 Product Launch Q2" with galaxy background
+- **4 lists:** Backlog, In Progress, In Review, Done
+- **12 cards** with various labels, due dates, checklists, member assignments and comments
+
+---
+
+## 💡 Assumptions
+
+1. **No login required** — the app automatically authenticates as a default user (`You`) on first load. Manual login/signup is still available for multi-user testing.
+2. **PostgreSQL for persistence** — chosen so the app works reliably when deployed.
+3. **Client-side filtering** — search and filter logic runs in the browser to keep the API simple and snappy.
+4. **Drag & drop order persisted** — card and list `order` fields are updated via API on every drag-end event.
+5. **Sample board is read-only in the demo** — live boards created by users are fully persistent.
+
+---
+
+## 📁 Project Structure
+
+```
+manageable/
+├── backend/
+│   ├── prisma/
+│   │   ├── schema.prisma     ← Database schema
+│   │   ├── seed.ts           ← Sample data seeder
+│   │   └── (DB created externally via `DATABASE_URL`)
+│   └── src/
+│       └── index.ts          ← All API routes (Express)
+└── frontend/
+    └── src/
+        ├── app/
+        │   ├── page.tsx          ← Auto-login landing
+        │   ├── dashboard/        ← Board list view
+        │   └── board/[id]/       ← Individual board view
+        └── components/
+            ├── Board.tsx         ← Drag & drop board
+            ├── List.tsx          ← List column
+            ├── CardItem.tsx      ← Card preview
+            └── CardModal.tsx     ← Full card detail modal
+```
+
+---
+
+## 👤 Author
+
+Built by **Eash Mahajan** for the Scaler project assignment.
+
+---
+## 🚀 Deployment Recommendation (Best)
+
+Because this is a separate **Next.js frontend + Express/Prisma backend**, the best setup is:
+
+- **Frontend (Next.js)**: deploy on **Vercel**
+- **Backend (Express + Prisma)**: deploy on **Render** (or **Railway**)
+- **Database**: use **PostgreSQL** (Render Postgres / Railway Postgres)
+
+### Vercel (frontend) env var
+Set:
+- `NEXT_PUBLIC_API_URL=https://<your-backend-host>/api`
+
+### Render (backend) env vars
+Set:
+- `DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/manageable?schema=public`
+- `PORT=5000`
+- `JWT_SECRET=...`
+- `GOOGLE_CLIENT_ID=...` (optional, unless you use Google login)
+
+On Render create the backend service using:
+- Build/Start: run `npm run start:prod` inside `backend/`

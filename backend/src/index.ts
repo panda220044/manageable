@@ -14,10 +14,35 @@ const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey123';
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || 'dummy');
 
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (Postman, curl), localhost, and any vercel.app domain
+    if (!origin || origin.includes('localhost') || origin.includes('vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all for now — restrict in production if needed
+    }
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 // Auth
+// Auto-login — returns JWT for the default seeded user (no credentials needed)
+app.get('/api/auth/auto-login', async (_req, res) => {
+  try {
+    let user = await prisma.user.findUnique({ where: { email: 'default@manageable.app' } });
+    if (!user) {
+      // Create default user if seed hasn't run yet
+      user = await prisma.user.create({ data: { email: 'default@manageable.app', name: 'You' } });
+    }
+    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '30d' });
+    res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+  } catch (e) {
+    res.status(500).json({ error: 'Auto-login failed' });
+  }
+});
+
 app.post('/api/auth/register', async (req, res) => {
   const { name, email, password } = req.body;
   if (!email || !password || !name) return res.status(400).json({ error: 'Missing fields' });
