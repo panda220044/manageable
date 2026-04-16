@@ -61,50 +61,84 @@ All relationships use cascading deletes — removing a board removes all its lis
 
 ---
 
-## 🚀 Setup Instructions
+## 🚀 Quick Setup Guide
+
+This project runs in 3 parts:
+
+- **Frontend**: Next.js app
+- **Backend**: Express API
+- **Database**: PostgreSQL
 
 ### Prerequisites
+
 - Node.js 18+
 - npm
+- A PostgreSQL database
 
-### 1. Clone the repo
+If you do not have PostgreSQL locally, the easiest option is to create a free hosted database on Neon, Supabase, Render Postgres, or Railway Postgres.
+
+### 1. Clone the repository
+
 ```bash
 git clone https://github.com/panda220044/manageable.git
 cd manageable
 ```
 
-### 2. Backend setup
-```bash
-cd backend
-cp .env.example .env        # or create .env manually (see below)
-npm install
-npm run db:push             # create schema in your DB
-npm run seed                # seed sample board + members
-npm run dev                 # starts on http://localhost:5000
-```
+### 2. Create backend environment file
 
-**`backend/.env`**
-```
+Create `backend/.env` and paste:
+
+```env
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/manageable?schema=public"
 PORT=5000
 JWT_SECRET=your_jwt_secret_here
+GOOGLE_CLIENT_ID=optional
 ```
 
-### 3. Frontend setup
+### 3. Start the backend
+
+Open a terminal inside `backend/` and run:
+
 ```bash
-cd frontend
-cp .env.local.example .env.local  # or create manually
 npm install
-npm run dev                        # starts on http://localhost:3000
+npm run db:push
+npm run seed
+npm run dev
 ```
 
-**`frontend/.env.local`**
-```
+The backend will start on `http://localhost:5000`.
+
+### 4. Create frontend environment file
+
+Create `frontend/.env.local` and paste:
+
+```env
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=optional
 ```
 
-### 4. Open the app
-Visit **http://localhost:3000** — you will be automatically logged in as the default user and land directly on the dashboard with the sample board ready.
+### 5. Start the frontend
+
+Open a second terminal inside `frontend/` and run:
+
+```bash
+npm install
+npm run dev
+```
+
+The frontend will start on `http://localhost:3000`.
+
+### 6. Use the app
+
+Open **http://localhost:3000**
+
+The app auto-logs in the default demo user and loads the seeded sample board, so you can immediately:
+
+- create boards
+- create/edit/delete lists
+- create/edit/delete cards
+- drag lists and cards
+- add labels, due dates, checklists, members, and comments
 
 ---
 
@@ -159,24 +193,36 @@ manageable/
 Built by **Eash Mahajan** for the Scaler project assignment.
 
 ---
-## 🚀 Deployment Recommendation (Best)
+## 🚀 Deployment Recommendation
 
-Because this is a separate **Next.js frontend + Express/Prisma backend**, the best setup is:
+Because this project has a separate **Next.js frontend + Express/Prisma backend**, the best deployment setup is:
 
 - **Frontend (Next.js)**: deploy on **Vercel**
 - **Backend (Express + Prisma)**: deploy on **Render** (or **Railway**)
 - **Database**: use **PostgreSQL** (Render Postgres / Railway Postgres)
 
-### Vercel (frontend) env var
-Set:
+### Frontend deployment: Vercel
+
+Set this environment variable on Vercel:
 - `NEXT_PUBLIC_API_URL=https://<your-backend-host>/api`
 
-### Render (backend) env vars
-Set:
+### Backend deployment: Render
+
+Create a Render Web Service for the `backend` folder.
+
+Set these environment variables:
 - `DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/manageable?schema=public`
 - `PORT=5000`
 - `JWT_SECRET=...`
 - `GOOGLE_CLIENT_ID=...` (optional, unless you use Google login)
 
-On Render create the backend service using:
-- Build/Start: run `npm run start:prod` inside `backend/`
+Use:
+
+- Root directory: `backend`
+- Start command: `npm run start:prod`
+
+### Recommended production stack
+
+- **Frontend**: Vercel
+- **Backend**: Render
+- **Database**: Render Postgres, Railway Postgres, Neon, or Supabase
