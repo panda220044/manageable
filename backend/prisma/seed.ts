@@ -5,10 +5,8 @@ const prisma = new PrismaClient();
 async function main() {
   // Avoid wiping the database on every restart.
   // We only seed if the sample board doesn't exist (unless explicitly forced).
-  const sampleBoardExists = await prisma.board
-    .findUnique({ where: { id: 'sample' } })
-    .then(() => true)
-    .catch(() => false);
+  const sampleBoard = await prisma.board.findUnique({ where: { id: 'sample' } });
+  const sampleBoardExists = !!sampleBoard;
 
   if (sampleBoardExists && process.env.SEED_FORCE !== 'true') {
     console.log('ℹ️ Seed already present — skipping');
