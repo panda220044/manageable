@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+declare var process: any;
 
 const prisma = new PrismaClient();
 
