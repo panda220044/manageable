@@ -5,6 +5,15 @@ A full-stack Kanban project management application inspired by Trello, built fro
 🔗 **Live Demo:** *(deploy URL here)*
 📦 **Repository:** https://github.com/panda220044/manageable
 
+<img width="1919" height="846" alt="Screenshot 2026-04-20 094127" src="https://github.com/user-attachments/assets/329f9b80-47cd-4418-be33-6ed6237e7686" />
+<img width="894" height="823" alt="Screenshot 2026-04-20 094145" src="https://github.com/user-attachments/assets/4db28037-4b18-4856-9896-8815dee8fcdb" />
+<img width="1797" height="783" alt="Screenshot 2026-04-20 094204" src="https://github.com/user-attachments/assets/02274ad4-b626-46c3-be2a-61ecd0fb6b19" />
+<img width="688" height="804" alt="Screenshot 2026-04-20 094219" src="https://github.com/user-attachments/assets/36c6d2f8-9600-41f3-bb82-32a834af874a" />
+<img width="1219" height="745" alt="Screenshot 2026-04-20 094259" src="https://github.com/user-attachments/assets/fe17f4ec-8d67-4dd1-8475-feb42343d3fb" />
+
+
+
+
 ---
 
 ## ✨ Features
