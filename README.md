@@ -199,7 +199,7 @@ manageable/
 
 ## 👤 Author
 
-Built by **Eashita Mahajan** for the Scaler project assignment.
+Built by **Eashita Mahajan**
 
 ---
 ## 🚀 Deployment Recommendation
